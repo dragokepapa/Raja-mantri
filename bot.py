@@ -28,6 +28,32 @@ async def start(client, message: Message):
     await message.reply(text)
 
 
+# 🔹 HELP COMMAND
+@app.on_message(filters.command("help"))
+async def help_cmd(client, message: Message):
+    text = f"""
+📖 **Raja Mantri Bot Help**
+
+🎮 Commands:
+/startgame - Start game
+/join - Join game
+
+🧠 How to Play:
+• 4 players join  
+• Roles assigned secretly  
+• 👑 Raja revealed  
+• 🧠 Mantri guesses Chor  
+
+🏆 Win:
+• Correct → Mantri wins  
+• Wrong → Chor wins  
+
+📢 Channel: {Config.SUPPORT_CHANNEL}
+💬 Support: {Config.SUPPORT_CHAT}
+"""
+    await message.reply(text)
+
+
 # 🔹 START GAME
 @app.on_message(filters.command("startgame") & filters.group)
 async def startgame(client, message: Message):
@@ -36,7 +62,7 @@ async def startgame(client, message: Message):
     await message.reply("🎮 Game started! Use /join to join.")
 
 
-# 🔹 JOIN (WITH DM CONFIRMATION)
+# 🔹 JOIN (WITH DM)
 @app.on_message(filters.command("join") & filters.group)
 async def join(client, message: Message):
     chat_id = message.chat.id
@@ -55,14 +81,14 @@ async def join(client, message: Message):
 
     game.add_player(user.id)
 
-    # DM message
+    # DM confirmation
     try:
         await client.send_message(
             user.id,
-            f"✅ You joined game in {message.chat.title}"
+            f"✅ You successfully joined the game in {message.chat.title}"
         )
     except:
-        await message.reply(f"{user.mention}, start bot in DM first!")
+        await message.reply(f"{user.mention}, please start bot in DM first!")
 
     await message.reply(
         f"✅ {user.mention} joined! ({len(game.players)}/{Config.MAX_PLAYERS})"
@@ -88,14 +114,19 @@ async def start_round(client, message, game):
 
     await message.reply(f"👑 Raja is [player](tg://user?id={raja})")
 
-    # Create buttons
+    # Buttons
     buttons = []
     row = []
 
     for uid in game.players:
         if uid != mantri:
             user = await client.get_users(uid)
-            row.append(InlineKeyboardButton(user.first_name, callback_data=f"guess_{uid}"))
+            row.append(
+                InlineKeyboardButton(
+                    user.first_name,
+                    callback_data=f"guess_{uid}"
+                )
+            )
 
         if len(row) == 2:
             buttons.append(row)
@@ -105,7 +136,7 @@ async def start_round(client, message, game):
         buttons.append(row)
 
     await message.reply(
-        "🧠 Mantri, choose Chor:",
+        "🧠 Mantri, choose who is Chor:",
         reply_markup=InlineKeyboardMarkup(buttons)
     )
 
@@ -122,7 +153,7 @@ async def guess(client, callback_query: CallbackQuery):
     game = games[chat_id]
 
     if user_id != game.mantri:
-        return await callback_query.answer("Only Mantri!", show_alert=True)
+        return await callback_query.answer("Only Mantri can guess!", show_alert=True)
 
     guessed = int(callback_query.data.split("_")[1])
 
@@ -131,6 +162,7 @@ async def guess(client, callback_query: CallbackQuery):
     else:
         result = "❌ Chor wins!"
 
+    # Reveal roles
     text = f"{result}\n\n🎭 Roles:\n"
     for uid, role in game.roles.items():
         user = await client.get_users(uid)
