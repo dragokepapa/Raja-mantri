@@ -1,0 +1,39 @@
+{
+  "name": "Raja Mantri Chor Sipahi Bot",
+  "description": "A Telegram game bot with buttons & DM system",
+  "repository": "https://github.com/dragokepapa/Raja-mantri",
+  "logo": "https://telegra.ph/file/6d8f5cbb0b5c5f8a5e2f1.png",
+  "keywords": ["telegram", "bot", "game", "pyrogram"],
+  "env": {
+    "API_ID": {
+      "description": "Your Telegram API ID",
+      "required": true
+    },
+    "API_HASH": {
+      "description": "Your Telegram API Hash",
+      "required": true
+    },
+    "BOT_TOKEN": {
+      "description": "Your Bot Token",
+      "required": true
+    },
+    "MAX_PLAYERS": {
+      "description": "Max players in game",
+      "value": "4"
+    },
+    "SUPPORT_CHAT": {
+      "description": "Support group link",
+      "value": "https://t.me/yourgroup"
+    },
+    "SUPPORT_CHANNEL": {
+      "description": "Support channel link",
+      "value": "https://t.me/yourchannel"
+    }
+  },
+  "formation": {
+    "worker": {
+      "quantity": 1,
+      "size": "free"
+    }
+  }
+}
